@@ -30,20 +30,18 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifdef SYSV
 #include <dirent.h>
 #define direct dirent
-#else
-#include <sys/dir.h>
-#endif
 
 #include "allobjects.h"
 #include "modsupport.h"
 
 extern char *strerror PROTO((int));
 
-#ifdef AMOEBA
+#if defined(AMOEBA) || defined(_WIN32)
 #define NO_LSTAT
+#define NO_LINK
+#define NO_UTIMES
 #endif
 
 
@@ -187,7 +185,7 @@ posix_chmod(self, args)
 	object *self;
 	object *args;
 {
-	extern int chmod PROTO((const char *, mode_t));
+	extern int chmod PROTO((const char *, int));
 	return posix_strint(args, chmod);
 }
 
@@ -205,6 +203,7 @@ posix_getcwd(self, args)
 	return newstringobject(buf);
 }
 
+#ifndef NO_LINK
 static object *
 posix_link(self, args)
 	object *self;
@@ -213,6 +212,7 @@ posix_link(self, args)
 	extern int link PROTO((const char *, const char *));
 	return posix_2str(args, link);
 }
+#endif
 
 static object *
 posix_listdir(self, args)
@@ -249,13 +249,20 @@ posix_listdir(self, args)
 	return d;
 }
 
+static int
+win_mkdir(path, mode)
+	const char *path;
+	int mode;
+{
+	return mkdir(path);
+}
+
 static object *
 posix_mkdir(self, args)
 	object *self;
 	object *args;
 {
-	extern int mkdir PROTO((const char *, mode_t));
-	return posix_strint(args, mkdir);
+	return posix_strint(args, win_mkdir);
 }
 
 static object *
@@ -321,6 +328,7 @@ posix_unlink(self, args)
 	return posix_1str(args, unlink);
 }
 
+#ifndef NO_UTIMES
 static object *
 posix_utimes(self, args)
 	object *self;
@@ -342,6 +350,7 @@ posix_utimes(self, args)
 	INCREF(None);
 	return None;
 }
+#endif
 
 
 #ifndef NO_LSTAT
@@ -387,7 +396,9 @@ static struct methodlist posix_methods[] = {
 	{"chdir",	posix_chdir},
 	{"chmod",	posix_chmod},
 	{"getcwd",	posix_getcwd},
+#ifndef NO_LINK
 	{"link",	posix_link},
+#endif
 	{"listdir",	posix_listdir},
 	{"mkdir",	posix_mkdir},
 	{"rename",	posix_rename},
@@ -396,7 +407,9 @@ static struct methodlist posix_methods[] = {
 	{"system",	posix_system},
 	{"umask",	posix_umask},
 	{"unlink",	posix_unlink},
+#ifndef NO_UTIMES
 	{"utimes",	posix_utimes},
+#endif
 #ifndef NO_LSTAT
 	{"lstat",	posix_lstat},
 	{"readlink",	posix_readlink},
