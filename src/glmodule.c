@@ -8002,17 +8002,6 @@ static struct methodlist gl_methods[] = {
 	{"getopenobj", gl_getopenobj},
 	{"getpattern", gl_getpattern},
 	{"winget", gl_winget},
-Line 783 : ('bad subscript', 'arg2*arg2/16')
-Line 877 : ('bad arg mode', '*')
-Line 881 : ('bad type', 'Fontchar')
-Function getdev too complicated: short r  arg1
-Function readpixels too complicated: short r  retval
-Function readRGB too complicated: char r  retval
-Function blkqread too complicated: short r  arg1
-Function lrectread too complicated: long r  retval
-Line 956 : ('bad subscript', '(arg2-arg1+1)*(arg4-arg3+1)')
-Function rectread too complicated: short r  retval
-Line 958 : ('bad subscript', '(arg2-arg1+1)*(arg4-arg3+1)')
 	{"winattach", gl_winattach},
 	{"getothermonitor", gl_getothermonitor},
 	{"newpup", gl_newpup},

@@ -263,11 +263,11 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #
 # Uncomment the following block to use the GL option.
 
-#GL_USE =	-DUSE_GL
-#GL_LIBDEPS=
-#GL_LIBS=	-lgl_s
-#GL_SRC =	glmodule.c cgensupport.c
-#GL_OBJ =	glmodule.o cgensupport.o
+GL_USE =	-DUSE_GL
+GL_LIBDEPS=	glshim/glshim.o
+GL_LIBS=	glshim/glshim.o -lopengl32 -lglu32 -lgdi32
+GL_SRC =	glmodule.c cgensupport.c
+GL_OBJ =	glmodule.o cgensupport.o
 
 
 # Panel Option
@@ -460,6 +460,12 @@ intrcheck.o:	intrcheck.c
 
 panelmodule.o:	panelmodule.c
 		$(COMPILE) $(PANEL_INCL) $*.c
+
+glshim/glshim.o:	glshim/glshim.c glshim/gl.h glshim/device.h
+		$(CC) -c $(CFLAGS) -o $@ glshim/glshim.c
+
+glmodule.o:	glmodule.c
+		$(COMPILE) -Iglshim $*.c
 
 posixmodule.o:	posixmodule.c
 		$(COMPILE) $(SYSVDEF) $(NOSYMLINKDEF) $*.c
